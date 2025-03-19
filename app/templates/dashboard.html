@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Med Life</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <h1>Med Life</h1>
+    <nav>
+        <a href="{{ url_for('routes.logout') }}" class="nav-btn">Logout</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Welcome, {{ username }}</h2>
+
+    <section class="form-container">
+        <h3>Search for Drugs</h3>
+        <form id="searchForm">
+            <label for="search-type">Search for:</label>
+            <select id="search-type">
+                <option value="drug">Drug</option>
+                <option value="disease">Disease</option>
+            </select>
+            <input id="searchInput" type="text" placeholder="Enter Drug or Disease Name">
+            <button type="submit">Search</button>
+        </form>
+        <div id="search-results"></div>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

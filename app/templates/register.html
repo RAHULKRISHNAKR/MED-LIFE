@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register to Med Life to manage your drug and disease information securely.">
+    <title>Register - Med Life</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>Med Life</h1>
+        <nav>
+            <a href="{{ url_for('routes.login') }}" class="nav-btn" aria-label="Login to Med Life">Login</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h2>Register</h2>
+
+            <!-- Flash messages for success or error -->
+            {% with messages = get_flashed_messages(with_categories=True) %}
+              {% if messages %}
+                <div class="messages">
+                    <ul>
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('routes.register') }}" method="POST" class="register-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input id="name" type="text" name="name" placeholder="Enter your name" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input id="email" type="email" name="email" placeholder="Enter your email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input id="password" type="password" name="password" placeholder="Enter your password" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn" aria-label="Register an account on Med Life">Register</button>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>
