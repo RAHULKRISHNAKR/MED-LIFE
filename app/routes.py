@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import db, User, Allergy
+from app.models import db, User, Allergy, SearchHistory  # Add SearchHistory import
 from app.api_handler import APIHandler
 from app.model import predict_new_drug
 
@@ -68,14 +68,35 @@ def dashboard():
 def search():
     if request.method == "POST":
         query = request.form.get("query")
+        search_type = request.form.get("search_type", "drug")  # Get search type from form
         
         if not query:
             return render_template("search_results.html", message="Please enter a valid query.")
 
-        # Call API handler to fetch search results
-        results = api_handler.search_drug_or_disease(query)
+        print(f"Searching for {search_type}: {query}")  # Debug log
+        
+        try:
+            # Call API handler to fetch search results, passing search_type
+            results = api_handler.search_drug_or_disease(query, search_type)
+            
+            # Save search to history
+            try:
+                search_history = SearchHistory(user_id=current_user.id, query=query)
+                db.session.add(search_history)
+                db.session.commit()
+            except Exception as e:
+                print(f"Error saving search history: {str(e)}")
+                db.session.rollback()
 
-        return render_template("search_results.html", results=results, query=query)
+            return render_template("search_results.html", 
+                                  results=results, 
+                                  query=query, 
+                                  search_type=search_type)
+        except Exception as e:
+            print(f"Error during search: {str(e)}")
+            return render_template("search_results.html", 
+                                  message=f"An error occurred while processing your search: {str(e)}",
+                                  query=query)
 
     return render_template("search_results.html", message="Enter a drug or disease name.")
 

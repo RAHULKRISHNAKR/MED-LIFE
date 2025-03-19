@@ -11,7 +11,8 @@ login_manager = LoginManager()
 
 def create_app():
     """Creates and configures the Flask app."""
-    app = Flask(__name__, template_folder=os.path.join(os.getcwd(), "templates"))
+    # Fix the template folder path to point to app/templates
+    app = Flask(__name__)
     app.config.from_object(Config)
 
     # Initialize extensions

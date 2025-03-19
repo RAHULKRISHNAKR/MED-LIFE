@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Med Life</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="../static/css/styles.css">
 </head>
 <body>
 
@@ -20,13 +20,13 @@
 
     <section class="form-container">
         <h3>Search for Drugs</h3>
-        <form id="searchForm">
+        <form id="searchForm" action="{{ url_for('routes.search') }}" method="POST">
             <label for="search-type">Search for:</label>
-            <select id="search-type">
+            <select id="search-type" name="search_type">
                 <option value="drug">Drug</option>
                 <option value="disease">Disease</option>
             </select>
-            <input id="searchInput" type="text" placeholder="Enter Drug or Disease Name">
+            <input id="searchInput" type="text" name="query" placeholder="Enter Drug or Disease Name">
             <button type="submit">Search</button>
         </form>
         <div id="search-results"></div>

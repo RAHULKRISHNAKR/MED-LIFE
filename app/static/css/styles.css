@@ -4,8 +4,8 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f7fc;
-    text-align: center;
     color: #333;
+    line-height: 1.6;
 }
 
 /* Navigation Bar */
@@ -19,7 +19,15 @@ body {
     width: 100%;
     position: fixed;
     top: 0;
+    left: 0;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 24px;
 }
 
 .navbar a {
@@ -27,29 +35,64 @@ body {
     text-decoration: none;
     margin: 0 15px;
     font-weight: bold;
+    transition: color 0.3s ease;
 }
 
 .navbar a:hover, .navbar a:focus {
     color: #ffd700;
 }
 
+/* Main Content */
+main {
+    padding-top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: calc(100vh - 150px);
+}
+
 /* Form Box */
 .form-container {
     background: white;
-    padding: 20px;
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 350px;
-    margin: 80px auto;
+    margin: 20px auto;
+    text-align: center;
 }
 
-input, button {
+.form-container h2 {
+    margin-top: 0;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #444;
+}
+
+input, select, button {
     width: 100%;
     padding: 10px;
-    margin: 10px 0;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     font-size: 16px;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 button {
@@ -58,10 +101,54 @@ button {
     font-weight: bold;
     cursor: pointer;
     border: none;
+    margin-top: 10px;
+    transition: background 0.3s ease;
 }
 
 button:hover, button:focus {
     background: #0056b3;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Form Footer */
+.form-footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.form-footer a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
 }
 
 /* Profile Page */
@@ -94,14 +181,345 @@ button:hover, button:focus {
     border-bottom: none;
 }
 
+/* Results styling */
+.results-container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.result-box {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.result-box h3 {
+    color: #007bff;
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.result-data {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+/* Highlight boxes for important drug information */
+.highlight-box {
+    border-left: 5px solid #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.indications-list p {
+    margin: 10px 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.alternatives-list ul {
+    list-style: disc;
+    margin-left: 20px;
+}
+
+.alternatives-list li {
+    margin: 8px 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
         align-items: center;
+        padding: 10px;
+    }
+    
+    .navbar h1 {
+        margin-bottom: 10px;
     }
 
     .form-container {
         width: 90%;
+        padding: 20px;
     }
+    
+    main {
+        padding-top: 140px;
+    }
+}
+
+/* Hero section */
+.hero {
+    background-color: #007bff;
+    color: white;
+    padding: 60px 20px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    width: 90%;
+    max-width: 1200px;
+    text-align: center;
+}
+
+.hero h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Footer */
+footer {
+    background-color: #f8f9fa;
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    width: 100%;
+}
+
+/* Formatted API Results */
+.formatted-data {
+    padding: 10px;
+}
+
+.data-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.data-section h4 {
+    color: #0056b3;
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 5px;
+}
+
+.data-section h5 {
+    color: #444;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.warning-section {
+    background-color: #fff8f8;
+    border-left: 4px solid #dc3545;
+}
+
+.boxed-warning {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.boxed-warning p strong {
+    color: #721c24;
+}
+
+.rx-concept-group {
+    margin-bottom: 15px;
+}
+
+.rx-concept-group h5 {
+    background-color: #e9ecef;
+    padding: 5px 10px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.rx-concept-group ul,
+.compound-properties ul,
+.pathway-list {
+    padding-left: 20px;
+    margin-top: 5px;
+}
+
+.rx-concept-group li,
+.compound-properties li,
+.pathway-list li {
+    margin-bottom: 5px;
+}
+
+.compound-properties li strong {
+    min-width: 150px;
+    display: inline-block;
+}
+
+/* Disease search results */
+.search-type {
+    color: #6c757d;
+    font-size: 0.8em;
+    font-weight: normal;
+    margin-left: 10px;
+}
+
+.medications-list ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.medication-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border-left: 3px solid #28a745;
+}
+
+.medication-item .manufacturer {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.medication-item .relevance {
+    margin-top: 8px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-style: italic;
+    color: #495057;
+}
+
+/* Medications Grid Layout */
+.medications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-gap: 15px;
+    margin-top: 15px;
+}
+
+.medication-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.medication-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.medication-header {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.medication-header h4 {
+    color: #0056b3;
+    margin: 0 0 5px 0;
+    font-size: 18px;
+}
+
+.generic-name {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9em;
+    display: block;
+}
+
+.label {
+    font-weight: 600;
+    color: #495057;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.manufacturer {
+    margin: 10px 0;
+    color: #495057;
+}
+
+.relevance-container {
+    margin-top: 12px;
+}
+
+.relevance {
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-style: italic;
+    color: #495057;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+/* Disease Information Styling */
+.disease-info-section {
+    border-left: 3px solid #17a2b8;
+}
+
+.disease-header h4 {
+    color: #17a2b8;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+.clinical-section {
+    margin: 15px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.clinical-section h5 {
+    color: #495057;
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.clinical-content p {
+    margin: 8px 0;
+    line-height: 1.6;
+    padding-left: 15px;
+    border-left: 2px solid #e9ecef;
+}
+
+.classification-section {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-top: 15px;
+}
+
+.classification-section h5 {
+    color: #17a2b8;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.classification-section ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.classification-section li {
+    padding: 6px 0;
+}
+
+.value {
+    color: #212529;
 }

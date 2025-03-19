@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results - Med Life</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
 
-    <header>
+    <header class="navbar">
         <h1>Med Life</h1>
         <nav>
             <a href="{{ url_for('routes.dashboard') }}" class="nav-btn" aria-label="Go to Dashboard">Dashboard</a>
@@ -17,16 +17,329 @@
     </header>
 
     <main>
-        <h2>Search Results for "{{ query }}"</h2>
+        <h2>Search Results for "{{ query }}" 
+            {% if search_type %}<span class="search-type">({{ search_type | capitalize }})</span>{% endif %}
+        </h2>
 
         <!-- Results Container -->
         <div class="results-container" aria-live="polite">
             {% if results %}
+                <!-- Display Recommended Medications for disease searches -->
+                {% if results.Recommended_Medications %}
+                <div class="result-box highlight-box">
+                    <h3>Medications for {{ query }}</h3>
+                    <div class="medications-list">
+                        {% if results.Recommended_Medications|length > 0 %}
+                            <div class="medications-grid">
+                            {% for drug in results.Recommended_Medications %}
+                                <div class="medication-card">
+                                    <div class="medication-header">
+                                        {% if drug.brand_name %}
+                                            <h4>{{ drug.brand_name }}</h4>
+                                            {% if drug.generic_name %} 
+                                                <span class="generic-name">{{ drug.generic_name }}</span>
+                                            {% endif %}
+                                        {% elif drug.generic_name %}
+                                            <h4>{{ drug.generic_name }}</h4>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    {% if drug.manufacturer %}
+                                        <div class="manufacturer">
+                                            <span class="label">Manufacturer:</span> 
+                                            <span class="value">{{ drug.manufacturer }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if drug.relevance %}
+                                        <div class="relevance-container">
+                                            <span class="label">Indication:</span>
+                                            <div class="relevance">{{ drug.relevance }}</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <p>No medications found for this condition.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Display Disease Information -->
+                {% if results.Disease_Information %}
+                <div class="result-box">
+                    <h3>Disease Information</h3>
+                    <div class="formatted-data">
+                        {% if results.Disease_Information.results and results.Disease_Information.results|length > 0 %}
+                            {% for result in results.Disease_Information.results %}
+                                <div class="data-section disease-info-section">
+                                    <!-- Disease Name/Type -->
+                                    {% if result.openfda %}
+                                        <div class="disease-header">
+                                            {% if result.openfda.pharm_class_epc %}
+                                                <h4>{{ result.openfda.pharm_class_epc[0] }}</h4>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Clinical Information -->
+                                    {% for key, value in result.items() %}
+                                        {% if key not in ['openfda', 'id', 'effective_time', 'version'] and value is iterable and value is not string %}
+                                            <div class="clinical-section">
+                                                <h5>{{ key|replace('_', ' ')|title }}</h5>
+                                                <div class="clinical-content">
+                                                    {% for item in value %}
+                                                        <p>{{ item }}</p>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    <!-- Classification Information -->
+                                    {% if result.openfda %}
+                                        <div class="classification-section">
+                                            <h5>Classification</h5>
+                                            <ul>
+                                                {% if result.openfda.pharm_class_cs %}
+                                                    <li><span class="label">Chemical Structure:</span> 
+                                                        <span class="value">{{ result.openfda.pharm_class_cs|join(', ') }}</span>
+                                                    </li>
+                                                {% endif %}
+                                                {% if result.openfda.pharm_class_moa %}
+                                                    <li><span class="label">Mechanism of Action:</span> 
+                                                        <span class="value">{{ result.openfda.pharm_class_moa|join(', ') }}</span>
+                                                    </li>
+                                                {% endif %}
+                                                {% if result.openfda.pharm_class_pe %}
+                                                    <li><span class="label">Physiologic Effect:</span> 
+                                                        <span class="value">{{ result.openfda.pharm_class_pe|join(', ') }}</span>
+                                                    </li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>Detailed disease information not available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Display Indications for drug searches -->
+                {% if results.Indications %}
+                <div class="result-box highlight-box">
+                    <h3>Drug Indications</h3>
+                    <div class="indications-list">
+                        {% for indication in results.Indications %}
+                            <p>{{ indication }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Display Alternatives for drug searches -->
+                {% if results.Alternatives %}
+                <div class="result-box highlight-box">
+                    <h3>Alternative Medications</h3>
+                    <div class="alternatives-list">
+                        {% if results.Alternatives|length > 0 %}
+                            <ul>
+                            {% for alt in results.Alternatives %}
+                                <li><strong>{{ alt.name }}</strong> {% if alt.class %}({{ alt.class }}){% endif %}</li>
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No alternative medications found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- OpenFDA formatted results -->
+                {% if results.OpenFDA %}
+                <div class="result-box">
+                    <h3>OpenFDA Information</h3>
+                    <div class="formatted-data">
+                        {% if results.OpenFDA.results and results.OpenFDA.results|length > 0 %}
+                            {% set fda_data = results.OpenFDA.results[0] %}
+                            
+                            <!-- Drug Information -->
+                            {% if fda_data.openfda %}
+                                <div class="data-section">
+                                    <h4>Drug Details</h4>
+                                    {% if fda_data.openfda.brand_name %}
+                                        <p><strong>Brand Names:</strong> {{ fda_data.openfda.brand_name|join(', ') }}</p>
+                                    {% endif %}
+                                    {% if fda_data.openfda.generic_name %}
+                                        <p><strong>Generic Name:</strong> {{ fda_data.openfda.generic_name|join(', ') }}</p>
+                                    {% endif %}
+                                    {% if fda_data.openfda.manufacturer_name %}
+                                        <p><strong>Manufacturer:</strong> {{ fda_data.openfda.manufacturer_name|join(', ') }}</p>
+                                    {% endif %}
+                                    {% if fda_data.openfda.route %}
+                                        <p><strong>Route of Administration:</strong> {{ fda_data.openfda.route|join(', ') }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Warnings & Precautions -->
+                            {% if fda_data.warnings or fda_data.boxed_warning %}
+                                <div class="data-section warning-section">
+                                    <h4>Warnings & Precautions</h4>
+                                    {% if fda_data.boxed_warning %}
+                                        <div class="boxed-warning">
+                                            <p><strong>⚠️ BOXED WARNING:</strong></p>
+                                            {% for warning in fda_data.boxed_warning %}
+                                                <p>{{ warning }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if fda_data.warnings %}
+                                        {% for warning in fda_data.warnings %}
+                                            <p>{{ warning }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Additional sections -->
+                            {% if fda_data.drug_interactions %}
+                                <div class="data-section">
+                                    <h4>Drug Interactions</h4>
+                                    {% for interaction in fda_data.drug_interactions %}
+                                        <p>{{ interaction }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if fda_data.adverse_reactions %}
+                                <div class="data-section">
+                                    <h4>Adverse Reactions</h4>
+                                    {% for reaction in fda_data.adverse_reactions %}
+                                        <p>{{ reaction }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p>Detailed OpenFDA information not available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- RxNorm formatted results -->
+                {% if results.RxNorm %}
+                <div class="result-box">
+                    <h3>RxNorm Information</h3>
+                    <div class="formatted-data">
+                        {% if results.RxNorm.idGroup %}
+                            <div class="data-section">
+                                {% if results.RxNorm.idGroup.name %}
+                                    <h4>{{ results.RxNorm.idGroup.name }}</h4>
+                                {% endif %}
+                                
+                                {% if results.RxNorm.idGroup.rxnormId %}
+                                    <p><strong>RxNorm ID:</strong> {{ results.RxNorm.idGroup.rxnormId|join(', ') }}</p>
+                                {% endif %}
+                                
+                                {% if results.RxNorm.idGroup.conceptGroup %}
+                                    {% for group in results.RxNorm.idGroup.conceptGroup %}
+                                        {% if group.conceptProperties %}
+                                            <div class="rx-concept-group">
+                                                <h5>{{ group.tty }}</h5>
+                                                <ul>
+                                                {% for concept in group.conceptProperties %}
+                                                    <li>{{ concept.name }}</li>
+                                                {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <p>Detailed RxNorm information not available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- PubChem formatted results -->
+                {% if results.PubChem %}
+                <div class="result-box">
+                    <h3>PubChem Information</h3>
+                    <div class="formatted-data">
+                        {% if results.PubChem.PC_Compounds %}
+                            {% for compound in results.PubChem.PC_Compounds %}
+                                <div class="data-section">
+                                    {% if compound.id and compound.id.id and compound.id.id.cid %}
+                                        <h4>Compound ID: {{ compound.id.id.cid }}</h4>
+                                    {% endif %}
+                                    
+                                    {% if compound.props %}
+                                        <div class="compound-properties">
+                                            <h5>Properties</h5>
+                                            <ul>
+                                            {% for prop in compound.props %}
+                                                {% if prop.urn and prop.urn.label and prop.value %}
+                                                    <li><strong>{{ prop.urn.label }}:</strong> 
+                                                        {% if prop.value.sval %}
+                                                            {{ prop.value.sval }}
+                                                        {% elif prop.value.ival %}
+                                                            {{ prop.value.ival }}
+                                                        {% elif prop.value.fval %}
+                                                            {{ prop.value.fval }}
+                                                        {% endif %}
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>Detailed PubChem information not available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- KEGG formatted results -->
+                {% if results.KEGG %}
+                <div class="result-box">
+                    <h3>KEGG Pathway Information</h3>
+                    <div class="formatted-data">
+                        {% if results.KEGG|length > 0 %}
+                            <div class="data-section">
+                                <ul class="pathway-list">
+                                    {% for line in results.KEGG.splitlines() %}
+                                        {% if line|trim %}
+                                            <li>{{ line }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% else %}
+                            <p>No KEGG pathway information available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Display other API results -->
                 {% for category, data in results.items() %}
+                    {% if category not in ['Indications', 'Alternatives', 'OpenFDA', 'RxNorm', 'PubChem', 'KEGG', 'Recommended_Medications', 'Disease_Information'] %}
                     <div class="result-box">
                         <h3>{{ category.replace("_", " ").title() }}</h3>
                         <pre class="result-data">{{ data | tojson(indent=2) }}</pre>
                     </div>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 <p class="no-results">No results found for your query. Try another search.</p>
