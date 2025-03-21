@@ -21,7 +21,7 @@ def create_app():
     login_manager.login_view = "routes.login"
 
     # Import models to prevent circular imports
-    from app.models import User, SearchHistory, Allergy
+    from app.models import User, SearchHistory, Allergy, UserMedication, UserDisease
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -34,6 +34,10 @@ def create_app():
 
     # Create database tables inside the application context
     with app.app_context():
+        # Create only tables that don't exist yet
         db.create_all()
+        
+        # Print message to console for tracking
+        print("Database tables checked and created if needed.")
 
     return app
