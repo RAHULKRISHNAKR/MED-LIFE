@@ -107,6 +107,31 @@ document.addEventListener("DOMContentLoaded", function() {
             input.style.boxShadow = 'none';
         });
     });
+
+    // Handle table/grid view switching based on screen size
+    function handleResponsiveDisplay() {
+        const tableContainers = document.querySelectorAll('.alternatives-table-container');
+        const grids = document.querySelectorAll('.alternatives-grid');
+        
+        if (window.innerWidth <= 768) {
+            // Mobile view
+            tableContainers.forEach(container => container.style.display = 'none');
+            grids.forEach(grid => grid.style.display = 'grid');
+        } else {
+            // Desktop view
+            tableContainers.forEach(container => container.style.display = 'block');
+            grids.forEach(grid => grid.style.display = 'none');
+        }
+    }
+    
+    // Run initially and when window resizes
+    handleResponsiveDisplay();
+    window.addEventListener('resize', handleResponsiveDisplay);
+    
+    // Zebra striping for tables to improve readability
+    document.querySelectorAll('.alternatives-table tbody tr:nth-child(even)').forEach(row => {
+        row.style.backgroundColor = '#f8f9fa';
+    });
 });
 
 // Helper function to validate email format

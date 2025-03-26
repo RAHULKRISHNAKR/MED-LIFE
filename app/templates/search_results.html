@@ -164,19 +164,108 @@
                 </div>
                 {% endif %}
                 
+                <!-- Display Drug Allergies Information -->
+                {% if results.Allergies and search_type == "drug" %}
+                <div class="result-box highlight-box">
+                    <h3>Potential Allergic Reactions to {{ query }}</h3>
+                    <div class="formatted-data">
+                        {% if results.Allergies.severe_reactions and results.Allergies.severe_reactions|length > 0 %}
+                            <div class="data-section warning-section">
+                                <h4>Severe Allergic Reactions</h4>
+                                <div class="boxed-warning">
+                                    {% for reaction in results.Allergies.severe_reactions %}
+                                        <p>{{ reaction }}</p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        {% if results.Allergies.warnings and results.Allergies.warnings|length > 0 %}
+                            <div class="data-section warning-section">
+                                <h4>Allergy Warnings</h4>
+                                {% for warning in results.Allergies.warnings %}
+                                    <p>{{ warning }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if results.Allergies.common_reactions and results.Allergies.common_reactions|length > 0 %}
+                            <div class="data-section">
+                                <h4>Common Adverse Reactions</h4>
+                                <p class="reactions-note">The following adverse reactions may include allergic symptoms:</p>
+                                {% for reaction in results.Allergies.common_reactions %}
+                                    <p>{{ reaction }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if not results.Allergies.severe_reactions and not results.Allergies.warnings and not results.Allergies.common_reactions %}
+                            <p>No specific allergy information available for this drug.</p>
+                        {% endif %}
+                        
+                        <div class="allergy-advice-box">
+                            <p><strong>Important:</strong> If you experience symptoms such as rash, hives, itching, swelling, dizziness, 
+                            trouble breathing, or any severe reaction after taking this medication, seek immediate medical attention. 
+                            These could be signs of a serious allergic reaction.</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <!-- Display Alternatives for drug searches -->
                 {% if results.Alternatives %}
                 <div class="result-box highlight-box">
-                    <h3>Alternative Medications</h3>
+                    <h3>Alternative Medications for {{ query }}</h3>
                     <div class="alternatives-list">
                         {% if results.Alternatives|length > 0 %}
-                            <ul>
-                            {% for alt in results.Alternatives %}
-                                <li><strong>{{ alt.name }}</strong> {% if alt.class %}({{ alt.class }}){% endif %}</li>
-                            {% endfor %}
-                            </ul>
+                            <p class="alt-description">The following medications belong to the same therapeutic class and may be considered as alternatives:</p>
+                            
+                            <!-- Table view for larger screens -->
+                            <div class="alternatives-table-container">
+                                <table class="alternatives-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Medication Name</th>
+                                            <th>Drug Class</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for alt in results.Alternatives %}
+                                            <tr>
+                                                <td class="alt-med-name">{{ alt.name }}</td>
+                                                <td class="alt-med-class">{{ alt.class }}</td>
+                                                <td class="alt-med-action">
+                                                    <form action="{{ url_for('routes.search') }}" method="POST">
+                                                        <input type="hidden" name="query" value="{{ alt.name }}">
+                                                        <input type="hidden" name="search_type" value="drug">
+                                                        <button type="submit" class="alt-search-btn">View Details</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Grid view for smaller screens -->
+                            <div class="alternatives-grid">
+                                {% for alt in results.Alternatives %}
+                                    <div class="alternative-card">
+                                        <div class="alt-name">{{ alt.name }}</div>
+                                        {% if alt.class %}
+                                            <div class="alt-class">{{ alt.class }}</div>
+                                        {% endif %}
+                                        <form action="{{ url_for('routes.search') }}" method="POST">
+                                            <input type="hidden" name="query" value="{{ alt.name }}">
+                                            <input type="hidden" name="search_type" value="drug">
+                                            <button type="submit" class="alt-search-btn">View Details</button>
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         {% else %}
-                            <p>No alternative medications found.</p>
+                            <p>No alternative medications found for {{ query }}.</p>
                         {% endif %}
                     </div>
                 </div>
@@ -354,9 +443,88 @@
                 </div>
                 {% endif %}
                 
+                <!-- ChEMBL formatted results -->
+                {% if results.ChEMBL %}
+                <div class="result-box">
+                    <h3>ChEMBL Information</h3>
+                    <div class="formatted-data">
+                        <!-- Handle molecules data structure -->
+                        {% if results.ChEMBL.molecules %}
+                            <div class="data-section">
+                                <h4>Drug Information</h4>
+                                {% for molecule in results.ChEMBL.molecules %}
+                                    <div class="chembl-molecule">
+                                        {% if molecule.pref_name %}
+                                            <p><strong>Name:</strong> {{ molecule.pref_name }}</p>
+                                        {% endif %}
+                                        
+                                        {% if molecule.molecule_chembl_id %}
+                                            <p><strong>ChEMBL ID:</strong> {{ molecule.molecule_chembl_id }}</p>
+                                        {% endif %}
+                                        
+                                        {% if molecule.molecule_structures and molecule.molecule_structures.canonical_smiles %}
+                                            <p><strong>SMILES:</strong> <span class="chembl-smiles">{{ molecule.molecule_structures.canonical_smiles }}</span></p>
+                                        {% endif %}
+                                        
+                                        {% if molecule.molecule_properties %}
+                                            <div class="chembl-properties">
+                                                <h5>Properties</h5>
+                                                <ul>
+                                                    {% if molecule.molecule_properties.alogp %}
+                                                        <li><strong>ALogP:</strong> {{ molecule.molecule_properties.alogp }}</li>
+                                                    {% endif %}
+                                                    {% if molecule.molecule_properties.full_mwt %}
+                                                        <li><strong>Molecular Weight:</strong> {{ molecule.molecule_properties.full_mwt }}</li>
+                                                    {% endif %}
+                                                    {% if molecule.molecule_properties.num_ro5_violations %}
+                                                        <li><strong>Lipinski Rule Violations:</strong> {{ molecule.molecule_properties.num_ro5_violations }}</li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Handle drug mechanisms data structure -->
+                        {% if results.ChEMBL.mechanisms or results.ChEMBL.drug_mechanisms %}
+                            <div class="data-section">
+                                <h4>Mechanism of Action</h4>
+                                {% set mechanism_list = results.ChEMBL.mechanisms if results.ChEMBL.mechanisms else results.ChEMBL.drug_mechanisms %}
+                                {% for mechanism in mechanism_list %}
+                                    <div class="chembl-mechanism">
+                                        {% if mechanism.mechanism_of_action %}
+                                            <p><strong>Mechanism:</strong> {{ mechanism.mechanism_of_action }}</p>
+                                        {% endif %}
+                                        
+                                        {% if mechanism.target_chembl_id %}
+                                            <p><strong>Target ID:</strong> {{ mechanism.target_chembl_id }}</p>
+                                        {% endif %}
+                                        
+                                        {% if mechanism.action_type %}
+                                            <p><strong>Action Type:</strong> {{ mechanism.action_type }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% if not loop.last %}<hr>{% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Handle other ChEMBL data structures -->
+                        {% if not results.ChEMBL.molecules and not results.ChEMBL.mechanisms and not results.ChEMBL.drug_mechanisms %}
+                            <div class="data-section">
+                                <h4>ChEMBL Data</h4>
+                                <pre class="result-data">{{ results.ChEMBL | tojson(indent=2) }}</pre>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
                 <!-- Display other API results -->
                 {% for category, data in results.items() %}
-                    {% if category not in ['Indications', 'Alternatives', 'OpenFDA', 'RxNorm', 'PubChem', 'KEGG', 'Recommended_Medications', 'Disease_Information'] %}
+                    {% if category not in ['Indications', 'Alternatives', 'OpenFDA', 'RxNorm', 'PubChem', 'KEGG', 'ChEMBL', 'Recommended_Medications', 'Disease_Information'] %}
                     <div class="result-box">
                         <h3>{{ category.replace("_", " ").title() }}</h3>
                         <pre class="result-data">{{ data | tojson(indent=2) }}</pre>
