@@ -8,7 +8,7 @@ class APIHandler:
         Helper function to make API requests and handle errors.
         """
         try:
-            response = requests.get(url, timeout=5)
+            response = requests.get(url, timeout=10)
             response.raise_for_status()
             return response.text if return_text else response.json()
         except requests.exceptions.RequestException as e:

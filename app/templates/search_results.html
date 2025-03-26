@@ -21,6 +21,28 @@
             {% if search_type %}<span class="search-type">({{ search_type | capitalize }})</span>{% endif %}
         </h2>
 
+        <!-- Allergy Warning Section -->
+        {% if allergy_warnings and allergy_warnings|length > 0 %}
+        <div class="allergy-warning-container">
+            <div class="allergy-warning">
+                <h3>⚠️ ALLERGY WARNING</h3>
+                <p>This medication may cause an allergic reaction based on your health profile:</p>
+                <ul>
+                {% for warning in allergy_warnings %}
+                    <li>
+                        <strong>{{ warning.drug_name }}</strong>
+                        {% if warning.ingredient is defined %}
+                            (found in active ingredient: {{ warning.ingredient }})
+                        {% endif %}
+                        - Possible reaction: {{ warning.reaction }}
+                    </li>
+                {% endfor %}
+                </ul>
+                <p>Please consult with your healthcare provider before taking this medication.</p>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Results Container -->
         <div class="results-container" aria-live="polite">
             {% if results %}

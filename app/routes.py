@@ -78,6 +78,41 @@ def search():
         try:
             results = api_handler.search_drug_or_disease(query, search_type)
             
+            # Check for allergy conflicts (only for drug searches)
+            allergy_warnings = []
+            if search_type == "drug" and current_user.is_authenticated:
+                # Get user's allergies
+                user_allergies = Allergy.query.filter_by(user_id=current_user.id).all()
+                
+                # Simple case-insensitive matching for allergies
+                for allergy in user_allergies:
+                    # Check if the drug name matches or contains the allergy trigger
+                    if (query.lower() == allergy.drug_name.lower() or 
+                        query.lower() in allergy.drug_name.lower() or 
+                        allergy.drug_name.lower() in query.lower()):
+                        warning = {
+                            "drug_name": allergy.drug_name,
+                            "reaction": allergy.reaction if allergy.reaction else "Unknown reaction"
+                        }
+                        allergy_warnings.append(warning)
+                
+                # Also check active ingredients from OpenFDA data if available
+                if results.get("OpenFDA") and results["OpenFDA"].get("results"):
+                    for result in results["OpenFDA"]["results"]:
+                        if "openfda" in result and "active_ingredient" in result["openfda"]:
+                            ingredients = result["openfda"]["active_ingredient"]
+                            for ingredient in ingredients:
+                                for allergy in user_allergies:
+                                    if (allergy.drug_name.lower() in ingredient.lower() or
+                                        ingredient.lower() in allergy.drug_name.lower()):
+                                        warning = {
+                                            "drug_name": allergy.drug_name,
+                                            "ingredient": ingredient,
+                                            "reaction": allergy.reaction if allergy.reaction else "Unknown reaction"
+                                        }
+                                        if warning not in allergy_warnings:
+                                            allergy_warnings.append(warning)
+            
             # Save search to history (updated keyword)
             try:
                 search_history = SearchHistory(user_id=current_user.id, search_query=query)
@@ -90,7 +125,8 @@ def search():
             return render_template("search_results.html", 
                                   results=results, 
                                   query=query, 
-                                  search_type=search_type)
+                                  search_type=search_type,
+                                  allergy_warnings=allergy_warnings)
         except Exception as e:
             print(f"Error during search: {str(e)}")
             return render_template("search_results.html", 
